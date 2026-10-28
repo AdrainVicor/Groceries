@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FamilyCart - Smart Grocery List</title>
+    <title>FamilyCart - Smart Collaborative Grocery List</title>
 
     <!-- Web App Capability Tags -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -59,9 +59,9 @@
                     </div>
                     <div>
                         <h1 class="font-extrabold text-xl leading-tight tracking-tight">FamilyCart</h1>
-                        <p class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
+                        <p id="connectionStatus" class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                            Active List Ready
+                            Cloud Sync Active
                         </p>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                     <i class="fa-solid fa-basket-shopping text-2xl"></i>
                 </div>
                 <h3 class="font-bold text-slate-700 text-base">Your shopping list is empty</h3>
-                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below to get started!</p>
+                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below to sync them live with family!</p>
             </div>
         </main>
 
@@ -269,8 +269,27 @@
         <span id="toastMsg">Notification</span>
     </div>
 
-    <!-- NATIVE STANDARD SCRIPT -->
-    <script>
+    <!-- FIREBASE & APP SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ==========================================
+        // PASTE YOUR FIREBASE CONFIG HERE:
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: ""AIzaSyDTqS42XgklCS-xmL8PBUfdtTsLDCXNK2g"",
+            authDomain: "familycart-5186a.firebaseapp.com",
+            projectId: "familycart-5186a",
+            storageBucket: "familycart-5186a.firebasestorage.app",
+            messagingSenderId: "1003257813967",
+            appId: "1:1003257813967:web:7f2965a40ea2f93db610ba",
+            measurementId: "G-V8MK5WW3Z9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const CATEGORIES = [
             { id: 'Meats', label: 'Meats', icon: 'fa-drumstick-bite', color: 'bg-rose-100 text-rose-700 border-rose-200' },
             { id: 'Veggies', label: 'Veggies', icon: 'fa-carrot', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
@@ -290,6 +309,7 @@
         let isGroupedByCategory = false;
         let selectedCategory = 'Meats';
         let editingItemId = null;
+        let unsubscribeSnapshot = null;
 
         const KEYWORD_MAP = {
             'Meats': ['chicken', 'beef', 'steak', 'pork', 'lamb', 'bacon', 'sausage', 'meat', 'mince', 'fish', 'salmon', 'tuna'],
@@ -304,9 +324,17 @@
         };
 
         window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const listParam = urlParams.get('list');
+            if (listParam) {
+                activeListId = listParam;
+            } else {
+                activeListId = localStorage.getItem('family_cart_last_id') || 'family-groceries-default';
+            }
+
             renderCategoryPills();
             populateEditCategories();
-            loadActiveList();
+            subscribeToCloudList(activeListId);
 
             const itemNameInput = document.getElementById('itemNameInput');
             const clearInputBtn = document.getElementById('clearInputBtn');
@@ -323,61 +351,62 @@
             });
         });
 
-        function getAllListsStorage() {
+        function getLocalSavedLists() {
             try {
-                const data = localStorage.getItem('family_cart_db');
-                return data ? JSON.parse(data) : {
-                    'family-groceries-default': {
-                        name: 'Family Groceries',
-                        items: [
-                            { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
-                            { id: '2', name: 'Whole Wheat Bread', qty: 1, category: 'Bakery', done: false }
-                        ]
-                    }
-                };
+                const data = localStorage.getItem('family_cart_recent_lists');
+                return data ? JSON.parse(data) : { 'family-groceries-default': 'Family Groceries' };
             } catch (e) {
-                return {};
+                return { 'family-groceries-default': 'Family Groceries' };
             }
         }
 
-        function saveAllListsStorage(db) {
-            localStorage.setItem('family_cart_db', JSON.stringify(db));
+        function saveLocalListRecord(id, name) {
+            const lists = getLocalSavedLists();
+            lists[id] = name;
+            localStorage.setItem('family_cart_recent_lists', JSON.stringify(lists));
+            localStorage.setItem('family_cart_last_id', id);
         }
 
-        function loadActiveList() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const listParam = urlParams.get('list');
-            const db = getAllListsStorage();
+        function subscribeToCloudList(listId) {
+            activeListId = listId;
+            localStorage.setItem('family_cart_last_id', listId);
 
-            if (listParam) {
-                activeListId = listParam;
-                if (!db[activeListId]) {
-                    db[activeListId] = { name: 'Joined List', items: [] };
-                    saveAllListsStorage(db);
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+            const docRef = doc(db, "shopping_lists", listId);
+            
+            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    activeListName = data.name || "Family Groceries";
+                    items = data.items || [];
+                } else {
+                    activeListName = "Family Groceries";
+                    items = [
+                        { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
+                        { id: '2', name: 'Whole Wheat Bread', qty: 1, category: 'Bakery', done: false }
+                    ];
+                    saveListToCloud();
                 }
-            } else {
-                activeListId = localStorage.getItem('family_cart_last_active') || 'family-groceries-default';
-                if (!db[activeListId]) {
-                    activeListId = Object.keys(db)[0] || 'family-groceries-default';
-                }
-            }
-
-            localStorage.setItem('family_cart_last_active', activeListId);
-            activeListName = db[activeListId]?.name || 'Family Groceries';
-            items = db[activeListId]?.items || [];
-
-            document.getElementById('currentListName').innerText = activeListName;
-            renderItems();
+                saveLocalListRecord(activeListId, activeListName);
+                document.getElementById('currentListName').innerText = activeListName;
+                renderItems();
+            }, (err) => {
+                console.warn("Cloud sync warning:", err);
+            });
         }
 
-        function saveCurrentList() {
-            const db = getAllListsStorage();
-            if (!db[activeListId]) {
-                db[activeListId] = { name: activeListName, items: [] };
+        async function saveListToCloud() {
+            try {
+                const docRef = doc(db, "shopping_lists", activeListId);
+                await setDoc(docRef, {
+                    name: activeListName,
+                    items: items,
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                console.error("Error saving to cloud:", err);
             }
-            db[activeListId].items = items;
-            db[activeListId].name = activeListName;
-            saveAllListsStorage(db);
         }
 
         function renderCategoryPills() {
@@ -434,7 +463,7 @@
             };
 
             items.unshift(newItem);
-            saveCurrentList();
+            saveListToCloud();
             renderItems();
 
             nameInput.value = '';
@@ -454,21 +483,21 @@
             const item = items.find(i => i.id === id);
             if (item) {
                 item.done = !item.done;
-                saveCurrentList();
+                saveListToCloud();
                 renderItems();
             }
         };
 
         window.deleteItem = function(id) {
             items = items.filter(i => i.id !== id);
-            saveCurrentList();
+            saveListToCloud();
             renderItems();
             showToast('Item deleted');
         };
 
         window.clearTrolleyItems = function() {
             items = items.filter(i => !i.done);
-            saveCurrentList();
+            saveListToCloud();
             renderItems();
             showToast('Cleared completed items');
         };
@@ -536,7 +565,7 @@
             }
         }
 
-        function renderItemCard(item) {
+        window.renderItemCard = function(item) {
             const cat = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[9];
             return `
                 <div class="item-enter bg-white p-3.5 rounded-2xl border ${item.done ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
@@ -571,12 +600,12 @@
         };
 
         window.renderSavedLists = function() {
-            const db = getAllListsStorage();
+            const dbLists = getLocalSavedLists();
             const container = document.getElementById('recentListsContainer');
-            container.innerHTML = Object.entries(db).map(([id, list]) => `
+            container.innerHTML = Object.entries(dbLists).map(([id, name]) => `
                 <div class="p-3 rounded-xl border ${id === activeListId ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-700'} flex items-center justify-between transition">
                     <div onclick="switchToList('${id}')" class="flex-1 cursor-pointer truncate mr-2">
-                        <p class="font-bold text-sm truncate">${list.name || 'Grocery List'}</p>
+                        <p class="font-bold text-sm truncate">${name}</p>
                         <p class="text-[10px] text-slate-400 font-mono">${id}</p>
                     </div>
                     <div class="flex items-center space-x-1 flex-shrink-0">
@@ -595,19 +624,17 @@
                 showToast("Cannot delete active list!");
                 return;
             }
-            const db = getAllListsStorage();
-            delete db[id];
-            saveAllListsStorage(db);
+            const dbLists = getLocalSavedLists();
+            delete dbLists[id];
+            localStorage.setItem('family_cart_recent_lists', JSON.stringify(dbLists));
             renderSavedLists();
-            showToast("Removed list");
+            showToast("Removed from saved lists");
         };
 
         window.switchToList = function(id) {
-            activeListId = id;
-            localStorage.setItem('family_cart_last_active', id);
-            loadActiveList();
+            subscribeToCloudList(id);
             toggleListModal(false);
-            showToast(`Switched list`);
+            showToast(`Connected to list`);
         };
 
         window.createNewList = function() {
@@ -616,12 +643,16 @@
             if (!name) return;
 
             const newId = 'family_' + Math.random().toString(36).substring(2, 8);
-            const db = getAllListsStorage();
-            db[newId] = { name: name, items: [] };
-            saveAllListsStorage(db);
+            activeListName = name;
+            items = [];
+            
+            saveLocalListRecord(newId, name);
+            subscribeToCloudList(newId);
+            saveListToCloud();
 
             input.value = '';
-            switchToList(newId);
+            toggleListModal(false);
+            showToast(`Created ${name}`);
         };
 
         window.joinExistingList = function() {
@@ -629,15 +660,10 @@
             const code = input.value.trim();
             if (!code) return;
 
-            const db = getAllListsStorage();
-            if (!db[code]) {
-                db[code] = { name: 'Joined Family List', items: [] };
-                saveAllListsStorage(db);
-            }
-
-            input.value = '';
+            saveLocalListRecord(code, "Joined List");
             switchToList(code);
-            showToast('Joined list successfully!');
+            input.value = '';
+            showToast('Joined shared list!');
         };
 
         window.shareCurrentList = function() {
@@ -680,7 +706,7 @@
                 item.name = document.getElementById('editItemNameInput').value.trim() || item.name;
                 item.qty = parseInt(document.getElementById('editItemQtyInput').value) || 1;
                 item.category = document.getElementById('editItemCategorySelect').value;
-                saveCurrentList();
+                saveListToCloud();
                 renderItems();
                 showToast('Item updated');
             }
