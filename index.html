@@ -56,7 +56,6 @@
             from { opacity: 0; transform: translateY(-6px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Hide scrollbars for category pills slider */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -82,12 +81,12 @@
                         <h1 class="font-extrabold text-xl leading-tight tracking-tight">FamilyCart</h1>
                         <p id="connectionStatus" class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                            Live Sync Active
+                            Cloud Sync Active
                         </p>
                     </div>
                 </div>
 
-                <!-- Action Buttons: Share & Switch List -->
+                <!-- Action Buttons -->
                 <div class="flex items-center space-x-2">
                     <button onclick="shareCurrentList()" class="bg-white/20 hover:bg-white/30 active:scale-95 transition px-3 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-share-nodes text-sm"></i>
@@ -126,10 +125,8 @@
         <!-- MAIN SCROLLABLE LIST AREA -->
         <main class="flex-1 p-4 space-y-4 overflow-y-auto" id="mainListContainer">
             
-            <!-- UNCHECKED ITEMS LIST -->
             <div id="activeItemsContainer" class="space-y-2.5"></div>
 
-            <!-- IN TROLLEY / DONE SECTION -->
             <div id="trolleySection" class="pt-6 border-t-2 border-dashed border-slate-200 hidden">
                 <div class="flex items-center justify-between mb-3 px-1">
                     <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -141,13 +138,12 @@
                 <div id="trolleyItemsContainer" class="space-y-2.5 opacity-80"></div>
             </div>
 
-            <!-- Completely empty state -->
             <div id="emptyListState" class="hidden flex-col items-center justify-center py-16 text-center px-4">
                 <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                     <i class="fa-solid fa-basket-shopping text-2xl"></i>
                 </div>
                 <h3 class="font-bold text-slate-700 text-base">Your shopping list is empty</h3>
-                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below using the bar at the bottom to get started!</p>
+                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below to share them with family in real time!</p>
             </div>
         </main>
 
@@ -156,7 +152,7 @@
             <form id="addItemForm" onsubmit="handleAddItem(event)" class="flex flex-col space-y-2.5">
                 <div class="flex items-center space-x-2">
                     <div class="relative flex-1">
-                        <input type="text" id="itemNameInput" placeholder="Add item (e.g. Milk, Bread, Apples)..." 
+                        <input type="text" id="itemNameInput" placeholder="Add item (e.g. Milk, Bread)..." 
                                required autocomplete="off"
                                class="w-full bg-slate-100 text-slate-900 text-sm rounded-xl pl-3.5 pr-8 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-200">
                         <button type="button" onclick="clearInput()" id="clearInputBtn" class="hidden absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-1">
@@ -164,7 +160,6 @@
                         </button>
                     </div>
 
-                    <!-- Quantity Input -->
                     <div class="w-16">
                         <input type="number" id="itemQtyInput" placeholder="Qty" min="1" value="1"
                                class="w-full bg-slate-100 text-slate-900 text-sm font-semibold text-center rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-200">
@@ -176,12 +171,9 @@
                     </button>
                 </div>
 
-                <!-- Quick Category Selector Bar -->
                 <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
                     <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex-shrink-0">Category:</span>
-                    <div id="categoryPills" class="flex space-x-1.5">
-                        <!-- Dynamic Pills -->
-                    </div>
+                    <div id="categoryPills" class="flex space-x-1.5"></div>
                 </div>
             </form>
         </div>
@@ -213,8 +205,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1">CATEGORY</label>
-                    <select id="editItemCategorySelect" class="w-full bg-slate-100 text-slate-800 text-sm p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </select>
+                    <select id="editItemCategorySelect" class="w-full bg-slate-100 text-slate-800 text-sm p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
                 </div>
             </div>
 
@@ -239,7 +230,6 @@
             </div>
 
             <div class="p-4 space-y-4 overflow-y-auto">
-                <!-- Create New List -->
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
                     <label class="block text-xs font-bold text-slate-600 uppercase">Create New List</label>
                     <div class="flex space-x-2">
@@ -248,7 +238,6 @@
                     </div>
                 </div>
 
-                <!-- Join Existing List with Code -->
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
                     <label class="block text-xs font-bold text-slate-600 uppercase">Join Family List with Code</label>
                     <div class="flex space-x-2">
@@ -257,18 +246,15 @@
                     </div>
                 </div>
 
-                <!-- Saved Lists -->
                 <div>
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Saved / Recent Lists</h3>
-                    <div id="recentListsContainer" class="space-y-2 max-h-48 overflow-y-auto">
-                        <!-- Rendered Lists -->
-                    </div>
+                    <div id="recentListsContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SHARE CODE MODAL -->
+    <!-- SHARE MODAL -->
     <div id="shareModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-5 space-y-4 text-center">
             <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl">
@@ -299,14 +285,30 @@
         </div>
     </div>
 
-    <!-- CUSTOM TOAST -->
+    <!-- TOAST -->
     <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 transition-all opacity-0 pointer-events-none flex items-center space-x-2">
         <i class="fa-solid fa-circle-info text-emerald-400"></i>
         <span id="toastMsg">Notification</span>
     </div>
 
-    <!-- APPLICATION SCRIPT -->
-    <script>
+    <!-- FIREBASE MODULES & LIVE SYNC SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase configuration (uses default demo/test bucket if not configured)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyA_DemoKey_ShoppingListApp_2026",
+            authDomain: "family-cart-sync.firebaseapp.com",
+            projectId: "family-cart-sync",
+            storageBucket: "family-cart-sync.appspot.com",
+            messagingSenderId: "1029384756",
+            appId: "1:1029384756:web:abcd1234efgh"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const CATEGORIES = [
             { id: 'Meats', label: 'Meats', icon: 'fa-drumstick-bite', color: 'bg-rose-100 text-rose-700 border-rose-200' },
             { id: 'Veggies', label: 'Veggies', icon: 'fa-carrot', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
@@ -326,6 +328,7 @@
         let isGroupedByCategory = false;
         let selectedCategory = 'Meats';
         let editingItemId = null;
+        let unsubscribeSnapshot = null;
 
         const KEYWORD_MAP = {
             'Meats': ['chicken', 'beef', 'steak', 'pork', 'lamb', 'bacon', 'sausage', 'meat', 'mince', 'fish', 'salmon', 'tuna'],
@@ -340,387 +343,5 @@
         };
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadListFromStorage();
-            renderCategoryPills();
-            populateEditCategories();
-
-            const itemNameInput = document.getElementById('itemNameInput');
-            const clearInputBtn = document.getElementById('clearInputBtn');
-
-            itemNameInput.addEventListener('input', (e) => {
-                const val = e.target.value.toLowerCase().trim();
-                clearInputBtn.classList.toggle('hidden', val === '');
-                for (const [cat, words] of Object.entries(KEYWORD_MAP)) {
-                    if (words.some(w => val.includes(w))) {
-                        selectCategory(cat);
-                        break;
-                    }
-                }
-            });
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'family_cart_lists') {
-                    loadListFromStorage();
-                }
-            });
-        });
-
-        function getListsDB() {
-            try {
-                const data = localStorage.getItem('family_cart_lists');
-                return data ? JSON.parse(data) : {
-                    'family-groceries-default': {
-                        name: 'Family Groceries',
-                        items: [
-                            { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
-                            { id: '2', name: 'Whole Wheat Bread', qty: 1, category: 'Bakery', done: false },
-                            { id: '3', name: 'Bananas', qty: 6, category: 'Veggies', done: true }
-                        ]
-                    }
-                };
-            } catch (e) {
-                return {};
-            }
-        }
-
-        function saveListsDB(db) {
-            localStorage.setItem('family_cart_lists', JSON.stringify(db));
-        }
-
-        function loadListFromStorage() {
-            const db = getListsDB();
             const urlParams = new URLSearchParams(window.location.search);
-            const listParam = urlParams.get('list');
-            if (listParam && db[listParam]) {
-                activeListId = listParam;
-            } else if (!db[activeListId]) {
-                activeListId = Object.keys(db)[0] || 'family-groceries-default';
-            }
-
-            if (!db[activeListId]) {
-                db[activeListId] = { name: 'Family Groceries', items: [] };
-                saveListsDB(db);
-            }
-
-            activeListName = db[activeListId].name;
-            items = db[activeListId].items || [];
-            
-            document.getElementById('currentListName').innerText = activeListName;
-            renderItems();
-        }
-
-        function saveCurrentListToStorage() {
-            const db = getListsDB();
-            if (!db[activeListId]) {
-                db[activeListId] = { name: activeListName, items: [] };
-            }
-            db[activeListId].items = items;
-            saveListsDB(db);
-        }
-
-        function renderCategoryPills() {
-            const container = document.getElementById('categoryPills');
-            container.innerHTML = CATEGORIES.map(cat => `
-                <button type="button" onclick="selectCategory('${cat.id}')" 
-                    id="pill-${cat.id}"
-                    class="category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
-                        selectedCategory === cat.id 
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                    }">
-                    <i class="fa-solid ${cat.icon} text-xs"></i>
-                    <span>${cat.label}</span>
-                </button>
-            `).join('');
-        }
-
-        function populateEditCategories() {
-            const select = document.getElementById('editItemCategorySelect');
-            select.innerHTML = CATEGORIES.map(cat => `
-                <option value="${cat.id}">${cat.label}</option>
-            `).join('');
-        }
-
-        window.selectCategory = function(catId) {
-            selectedCategory = catId;
-            document.querySelectorAll('.category-pill').forEach(btn => {
-                const isSelected = btn.id === `pill-${catId}`;
-                btn.className = `category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
-                    isSelected 
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`;
-            });
-        };
-
-        window.handleAddItem = function(e) {
-            e.preventDefault();
-            const nameInput = document.getElementById('itemNameInput');
-            const qtyInput = document.getElementById('itemQtyInput');
-            
-            const name = nameInput.value.trim();
-            const qty = parseInt(qtyInput.value) || 1;
-
-            if (!name) return;
-
-            const newItem = {
-                id: 'item_' + Date.now() + Math.random().toString(36).substring(2, 6),
-                name: name,
-                qty: qty,
-                category: selectedCategory,
-                done: false
-            };
-
-            items.unshift(newItem);
-            saveCurrentListToStorage();
-            renderItems();
-
-            nameInput.value = '';
-            qtyInput.value = '1';
-            document.getElementById('clearInputBtn').classList.add('hidden');
-            nameInput.focus();
-            showToast(`Added ${name}`);
-        };
-
-        window.clearInput = function() {
-            document.getElementById('itemNameInput').value = '';
-            document.getElementById('clearInputBtn').classList.add('hidden');
-            document.getElementById('itemNameInput').focus();
-        };
-
-        window.toggleItemDone = function(id) {
-            const item = items.find(i => i.id === id);
-            if (item) {
-                item.done = !item.done;
-                saveCurrentListToStorage();
-                renderItems();
-            }
-        };
-
-        window.deleteItem = function(id) {
-            items = items.filter(i => i.id !== id);
-            saveCurrentListToStorage();
-            renderItems();
-            showToast('Item deleted');
-        };
-
-        window.clearTrolleyItems = function() {
-            items = items.filter(i => !i.done);
-            saveCurrentListToStorage();
-            renderItems();
-            showToast('Cleared completed items');
-        };
-
-        window.toggleSortMode = function() {
-            isGroupedByCategory = !isGroupedByCategory;
-            document.getElementById('sortBtnText').innerText = isGroupedByCategory ? 'Default View' : 'Group by Category';
-            renderItems();
-        };
-
-        function renderItems() {
-            const activeContainer = document.getElementById('activeItemsContainer');
-            const trolleyContainer = document.getElementById('trolleyItemsContainer');
-            const trolleySection = document.getElementById('trolleySection');
-            const emptyState = document.getElementById('emptyListState');
-            
-            const activeItems = items.filter(i => !i.done);
-            const trolleyItems = items.filter(i => i.done);
-
-            document.getElementById('itemCountBadge').innerText = `${activeItems.length} active`;
-            document.getElementById('trolleyCount').innerText = trolleyItems.length;
-
-            if (items.length === 0) {
-                activeContainer.innerHTML = '';
-                trolleyContainer.innerHTML = '';
-                trolleySection.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            emptyState.classList.remove('flex');
-
-            if (activeItems.length === 0) {
-                activeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">All active items checked off! 🎉</p>`;
-            } else if (isGroupedByCategory) {
-                let html = '';
-                CATEGORIES.forEach(cat => {
-                    const catItems = activeItems.filter(i => i.category === cat.id);
-                    if (catItems.length > 0) {
-                        html += `
-                            <div class="mb-3">
-                                <div class="flex items-center space-x-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 px-1">
-                                    <i class="fa-solid ${cat.icon} text-emerald-600"></i>
-                                    <span>${cat.label}</span>
-                                </div>
-                                <div class="space-y-2">
-                                    ${catItems.map(item => renderItemCard(item)).join('')}
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                activeContainer.innerHTML = html;
-            } else {
-                activeContainer.innerHTML = activeItems.map(item => renderItemCard(item)).join('');
-            }
-
-            if (trolleyItems.length > 0) {
-                trolleySection.classList.remove('hidden');
-                trolleyContainer.innerHTML = trolleyItems.map(item => renderItemCard(item)).join('');
-            } else {
-                trolleySection.classList.add('hidden');
-            }
-        }
-
-        function renderItemCard(item) {
-            const cat = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[9];
-            return `
-                <div class="item-enter bg-white p-3.5 rounded-2xl border ${item.done ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
-                    <div class="flex items-center space-x-3 flex-1 min-w-0" onclick="toggleItemDone('${item.id}')">
-                        <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer border ${item.done ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-300 bg-white'}">
-                            ${item.done ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="font-bold text-sm truncate ${item.done ? 'line-through text-slate-400' : 'text-slate-800'}">${item.name}</p>
-                            <div class="flex items-center space-x-2 mt-0.5">
-                                <span class="text-[11px] font-semibold text-slate-500">Qty: ${item.qty}</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md font-bold ${cat.color}">${cat.label}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-1 flex-shrink-0">
-                        <button onclick="openEditModal('${item.id}')" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg">
-                            <i class="fa-solid fa-pen text-xs"></i>
-                        </button>
-                        <button onclick="deleteItem('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Modals & Navigation
-        window.toggleListModal = function(show) {
-            const modal = document.getElementById('listModal');
-            modal.classList.toggle('hidden', !show);
-            if (show) renderSavedLists();
-        };
-
-        window.renderSavedLists = function() {
-            const db = getListsDB();
-            const container = document.getElementById('recentListsContainer');
-            container.innerHTML = Object.entries(db).map(([id, list]) => `
-                <div onclick="switchToList('${id}')" class="p-3 rounded-xl border ${id === activeListId ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'} flex items-center justify-between cursor-pointer transition">
-                    <div>
-                        <p class="font-bold text-sm">${list.name}</p>
-                        <p class="text-[10px] text-slate-400">${list.items ? list.items.length : 0} items</p>
-                    </div>
-                    ${id === activeListId ? '<span class="text-xs font-bold text-emerald-600">Active</span>' : ''}
-                </div>
-            `).join('');
-        };
-
-        window.switchToList = function(id) {
-            activeListId = id;
-            const db = getListsDB();
-            if (db[id]) {
-                activeListName = db[id].name;
-            }
-            document.getElementById('currentListName').innerText = activeListName;
-            toggleListModal(false);
-            loadListFromStorage();
-            showToast(`Switched to ${activeListName}`);
-        };
-
-        window.createNewList = function() {
-            const input = document.getElementById('newListNameInput');
-            const name = input.value.trim();
-            if (!name) return;
-
-            const newId = 'list_' + Date.now();
-            const db = getListsDB();
-            db[newId] = { name: name, items: [] };
-            saveListsDB(db);
-
-            input.value = '';
-            switchToList(newId);
-        };
-
-        window.joinExistingList = function() {
-            const input = document.getElementById('joinListCodeInput');
-            const code = input.value.trim();
-            if (!code) return;
-
-            const db = getListsDB();
-            if (!db[code]) {
-                db[code] = { name: 'Joined Family List', items: [] };
-                saveListsDB(db);
-            }
-
-            input.value = '';
-            switchToList(code);
-            showToast('Joined list successfully!');
-        };
-
-        window.shareCurrentList = function() {
-            document.getElementById('shareListCodeDisplay').innerText = activeListId;
-            document.getElementById('shareModal').classList.remove('hidden');
-        };
-
-        window.toggleShareModal = function(show) {
-            document.getElementById('shareModal').classList.toggle('hidden', !show);
-        };
-
-        window.copyShareCode = function() {
-            navigator.clipboard.writeText(activeListId);
-            showToast('List code copied!');
-        };
-
-        window.copyShareLink = function() {
-            const link = window.location.origin + window.location.pathname + '?list=' + encodeURIComponent(activeListId);
-            navigator.clipboard.writeText(link);
-            showToast('List link copied!');
-        };
-
-        // Edit Modal handlers
-        window.openEditModal = function(id) {
-            const item = items.find(i => i.id === id);
-            if (!item) return;
-            editingItemId = id;
-            document.getElementById('editItemNameInput').value = item.name;
-            document.getElementById('editItemQtyInput').value = item.qty;
-            document.getElementById('editItemCategorySelect').value = item.category;
-            document.getElementById('editModal').classList.remove('hidden');
-        };
-
-        window.toggleEditModal = function(show) {
-            document.getElementById('editModal').classList.toggle('hidden', !show);
-        };
-
-        window.saveItemEdits = function() {
-            const item = items.find(i => i.id === editingItemId);
-            if (item) {
-                item.name = document.getElementById('editItemNameInput').value.trim() || item.name;
-                item.qty = parseInt(document.getElementById('editItemQtyInput').value) || 1;
-                item.category = document.getElementById('editItemCategorySelect').value;
-                saveCurrentListToStorage();
-                renderItems();
-                showToast('Item updated');
-            }
-            toggleEditModal(false);
-        };
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'pointer-events-none');
-            }, 2500);
-        }
-    </script>
-</body>
-</html>
+            const listParam = urlParams.get
