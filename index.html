@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Family Cart - Smart Collaborative Shopping List</title>
 
-    <!-- Web App / Add to Home Screen Capability Tags -->
+    <!-- Web App Capability Tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,15 +27,6 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                        }
                     }
                 }
             }
@@ -65,7 +56,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-850 flex flex-col min-h-screen">
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
 
     <!-- APP CONTAINER -->
     <div id="app" class="flex-1 flex flex-col w-full max-w-lg mx-auto bg-white min-h-screen shadow-xl relative pb-32">
@@ -110,7 +101,7 @@
             </div>
         </header>
 
-        <!-- TOOLBAR / QUICK ACTIONS -->
+        <!-- TOOLBAR -->
         <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between gap-3 sticky top-[116px] z-20 shadow-sm">
             <button id="sortToggleBtn" onclick="toggleSortMode()" class="flex-1 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition border border-slate-200 shadow-sm">
                 <i class="fa-solid fa-layer-group text-emerald-600 text-sm"></i>
@@ -122,9 +113,8 @@
             </button>
         </div>
 
-        <!-- MAIN SCROLLABLE LIST AREA -->
+        <!-- MAIN LIST AREA -->
         <main class="flex-1 p-4 space-y-4 overflow-y-auto" id="mainListContainer">
-            
             <div id="activeItemsContainer" class="space-y-2.5"></div>
 
             <div id="trolleySection" class="pt-6 border-t-2 border-dashed border-slate-200 hidden">
@@ -171,315 +161,7 @@
                     </button>
                 </div>
 
+                <!-- Category Pills Bar -->
                 <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
                     <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex-shrink-0">Category:</span>
-                    <div id="categoryPills" class="flex space-x-1.5"></div>
-                </div>
-            </form>
-        </div>
-
-    </div>
-
-    <!-- EDIT ITEM MODAL -->
-    <div id="editModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-5 space-y-4">
-            <div class="flex items-center justify-between border-b pb-2">
-                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square text-emerald-600"></i> Edit Item
-                </h3>
-                <button onclick="toggleEditModal(false)" class="text-slate-400 hover:text-slate-600 p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">ITEM NAME</label>
-                    <input type="text" id="editItemNameInput" class="w-full bg-slate-100 text-slate-800 text-sm p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">QUANTITY</label>
-                    <input type="number" id="editItemQtyInput" min="1" class="w-full bg-slate-100 text-slate-800 text-sm p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-1">CATEGORY</label>
-                    <select id="editItemCategorySelect" class="w-full bg-slate-100 text-slate-800 text-sm p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:outline-none"></select>
-                </div>
-            </div>
-
-            <div class="flex space-x-2 pt-2">
-                <button onclick="toggleEditModal(false)" class="flex-1 bg-slate-100 text-slate-600 font-bold text-xs py-3 rounded-xl hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="saveItemEdits()" class="flex-1 bg-emerald-600 text-white font-bold text-xs py-3 rounded-xl hover:bg-emerald-700 transition shadow-md">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- LIST SWITCHER & CREATION MODAL -->
-    <div id="listModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="p-4 bg-emerald-700 text-white flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-list-check text-lg"></i>
-                    <h2 class="font-bold text-base">My Family Lists</h2>
-                </div>
-                <button onclick="toggleListModal(false)" class="text-emerald-100 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="p-4 space-y-4 overflow-y-auto">
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                    <label class="block text-xs font-bold text-slate-600 uppercase">Create New List</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="newListNameInput" placeholder="e.g. Weekly Groceries" class="flex-1 bg-white text-xs p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                        <button onclick="createNewList()" class="bg-emerald-600 text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-emerald-700 active:scale-95 transition">Create</button>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
-                    <label class="block text-xs font-bold text-slate-600 uppercase">Join Family List with Code</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="joinListCodeInput" placeholder="Enter list code..." class="flex-1 bg-white text-xs p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                        <button onclick="joinExistingList()" class="bg-slate-800 text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-slate-900 active:scale-95 transition">Join</button>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Saved / Recent Lists</h3>
-                    <div id="recentListsContainer" class="space-y-2 max-h-48 overflow-y-auto"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SHARE MODAL -->
-    <div id="shareModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-5 space-y-4 text-center">
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl">
-                <i class="fa-solid fa-users"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-800 text-lg">Invite Family Members</h3>
-                <p class="text-xs text-slate-500 mt-1">Share this code or link with family so they can join your list!</p>
-            </div>
-
-            <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex flex-col items-center justify-center">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">List Code</span>
-                <span id="shareListCodeDisplay" class="font-mono text-xl font-extrabold text-emerald-700 tracking-wider">------</span>
-            </div>
-
-            <div class="flex space-x-2">
-                <button onclick="copyShareCode()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-3 rounded-xl border border-slate-300 transition flex items-center justify-center gap-1.5">
-                    <i class="fa-regular fa-copy"></i>
-                    <span>Copy Code</span>
-                </button>
-                <button onclick="copyShareLink()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-3 rounded-xl shadow-md transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-link"></i>
-                    <span>Copy Link</span>
-                </button>
-            </div>
-
-            <button onclick="toggleShareModal(false)" class="text-xs text-slate-400 hover:text-slate-600 pt-2 block w-full">Close</button>
-        </div>
-    </div>
-
-    <!-- TOAST -->
-    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 transition-all opacity-0 pointer-events-none flex items-center space-x-2">
-        <i class="fa-solid fa-circle-info text-emerald-400"></i>
-        <span id="toastMsg">Notification</span>
-    </div>
-
-    <!-- FIREBASE & APP SCRIPT -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyA_DemoKey_ShoppingListApp_2026",
-            authDomain: "family-cart-sync.firebaseapp.com",
-            projectId: "family-cart-sync",
-            storageBucket: "family-cart-sync.appspot.com",
-            messagingSenderId: "1029384756",
-            appId: "1:1029384756:web:abcd1234efgh"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const CATEGORIES = [
-            { id: 'Meats', label: 'Meats', icon: 'fa-drumstick-bite', color: 'bg-rose-100 text-rose-700 border-rose-200' },
-            { id: 'Veggies', label: 'Veggies', icon: 'fa-carrot', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-            { id: 'Dairy', label: 'Dairy', icon: 'fa-cheese', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-            { id: 'Bakery', label: 'Bakery', icon: 'fa-bread-slice', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-            { id: 'Dry Goods', label: 'Dry Goods', icon: 'fa-box-archive', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-            { id: 'Frozen', label: 'Frozen', icon: 'fa-snowflake', color: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-            { id: 'Beverages', label: 'Beverages', icon: 'fa-bottle-water', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-            { id: 'Sanitary', label: 'Sanitary', icon: 'fa-soap', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-            { id: 'Sundry', label: 'Sundry', icon: 'fa-receipt', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-            { id: 'Other', label: 'Other', icon: 'fa-basket-shopping', color: 'bg-slate-100 text-slate-700 border-slate-200' }
-        ];
-
-        let activeListId = 'family-groceries-default';
-        let activeListName = 'Family Groceries';
-        let items = [];
-        let isGroupedByCategory = false;
-        let selectedCategory = 'Meats';
-        let editingItemId = null;
-        let unsubscribeSnapshot = null;
-
-        const KEYWORD_MAP = {
-            'Meats': ['chicken', 'beef', 'steak', 'pork', 'lamb', 'bacon', 'sausage', 'meat', 'mince', 'fish', 'salmon', 'tuna'],
-            'Veggies': ['apple', 'banana', 'potato', 'tomato', 'onion', 'lettuce', 'carrot', 'spinach', 'berry', 'orange', 'lemon', 'garlic', 'avocado'],
-            'Dairy': ['milk', 'cheese', 'butter', 'yogurt', 'cream', 'eggs', 'egg', 'margarine'],
-            'Bakery': ['bread', 'rolls', 'buns', 'croissant', 'muffin', 'cake', 'bagel'],
-            'Dry Goods': ['rice', 'pasta', 'flour', 'sugar', 'cereal', 'oats', 'beans', 'oil', 'sauce', 'spices', 'salt', 'pepper'],
-            'Frozen': ['ice cream', 'frozen', 'peas', 'pizza', 'ice'],
-            'Beverages': ['water', 'juice', 'soda', 'coke', 'coffee', 'tea', 'wine', 'beer'],
-            'Sanitary': ['soap', 'shampoo', 'toothpaste', 'tissue', 'paper towel', 'detergent', 'bleach', 'wipes'],
-            'Sundry': ['battery', 'foil', 'wrap', 'matches', 'candle', 'pet food']
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const listParam = urlParams.get('list');
-            if (listParam) {
-                activeListId = listParam;
-            } else {
-                activeListId = localStorage.getItem('family_cart_last_id') || 'family-groceries-default';
-            }
-
-            renderCategoryPills();
-            populateEditCategories();
-            subscribeToCloudList(activeListId);
-
-            const itemNameInput = document.getElementById('itemNameInput');
-            const clearInputBtn = document.getElementById('clearInputBtn');
-
-            itemNameInput.addEventListener('input', (e) => {
-                const val = e.target.value.toLowerCase().trim();
-                clearInputBtn.classList.toggle('hidden', val === '');
-                for (const [cat, words] of Object.entries(KEYWORD_MAP)) {
-                    if (words.some(w => val.includes(w))) {
-                        selectCategory(cat);
-                        break;
-                    }
-                }
-            });
-        });
-
-        function getLocalSavedLists() {
-            try {
-                const data = localStorage.getItem('family_cart_recent_lists');
-                return data ? JSON.parse(data) : { 'family-groceries-default': 'Family Groceries' };
-            } catch (e) {
-                return { 'family-groceries-default': 'Family Groceries' };
-            }
-        }
-
-        function saveLocalListRecord(id, name) {
-            const lists = getLocalSavedLists();
-            lists[id] = name;
-            localStorage.setItem('family_cart_recent_lists', JSON.stringify(lists));
-            localStorage.setItem('family_cart_last_id', id);
-        }
-
-        function subscribeToCloudList(listId) {
-            activeListId = listId;
-            localStorage.setItem('family_cart_last_id', listId);
-
-            if (unsubscribeSnapshot) unsubscribeSnapshot();
-
-            const docRef = doc(db, "shopping_lists", listId);
-            
-            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    activeListName = data.name || "Family Groceries";
-                    items = data.items || [];
-                } else {
-                    activeListName = "Family Groceries";
-                    items = [
-                        { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
-                        { id: '2', name: 'Whole Wheat Bread', qty: 1, category: 'Bakery', done: false }
-                    ];
-                    saveListToCloud();
-                }
-                saveLocalListRecord(activeListId, activeListName);
-                document.getElementById('currentListName').innerText = activeListName;
-                renderItems();
-            }, (err) => {
-                console.warn("Cloud sync fallback:", err);
-            });
-        }
-
-        async function saveListToCloud() {
-            try {
-                const docRef = doc(db, "shopping_lists", activeListId);
-                await setDoc(docRef, {
-                    name: activeListName,
-                    items: items,
-                    updatedAt: Date.now()
-                });
-            } catch (err) {
-                console.error("Error saving to cloud:", err);
-            }
-        }
-
-        function renderCategoryPills() {
-            const container = document.getElementById('categoryPills');
-            container.innerHTML = CATEGORIES.map(cat => `
-                <button type="button" onclick="selectCategory('${cat.id}')" 
-                    id="pill-${cat.id}"
-                    class="category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
-                        selectedCategory === cat.id 
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                    }">
-                    <i class="fa-solid ${cat.icon} text-xs"></i>
-                    <span>${cat.label}</span>
-                </button>
-            `).join('');
-        }
-
-        function populateEditCategories() {
-            const select = document.getElementById('editItemCategorySelect');
-            select.innerHTML = CATEGORIES.map(cat => `
-                <option value="${cat.id}">${cat.label}</option>
-            `).join('');
-        }
-
-        window.selectCategory = function(catId) {
-            selectedCategory = catId;
-            document.querySelectorAll('.category-pill').forEach(btn => {
-                const isSelected = btn.id === `pill-${catId}`;
-                btn.className = `category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
-                    isSelected 
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`;
-            });
-        };
-
-        window.handleAddItem = function(e) {
-            e.preventDefault();
-            const nameInput = document.getElementById('itemNameInput');
-            const qtyInput = document.getElementById('itemQtyInput');
-            
-            const name = nameInput.value.trim();
-            const qty = parseInt(qtyInput.value) || 1;
-
-            if (!name) return;
-
-            const newItem = {
-                id: 'item_' + Date.now() + Math.random().toString(36).substring(2, 6),
-                name: name,
-                qty: qty,
-                category: selectedCategory,
-                done: false
-            };
-
-            items.unshift(newItem);
-            saveListToCloud();
-            render
+                    <div id="categoryP
