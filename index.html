@@ -3,35 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Family Cart - Smart Collaborative Shopping List</title>
+    <title>FamilyCart - Smart Grocery List</title>
 
     <!-- Web App Capability Tags -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Family Cart">
+    <meta name="apple-mobile-web-app-title" content="FamilyCart">
     <meta name="theme-color" content="#059669">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -70,21 +59,21 @@
                     </div>
                     <div>
                         <h1 class="font-extrabold text-xl leading-tight tracking-tight">FamilyCart</h1>
-                        <p id="connectionStatus" class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
+                        <p class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                            Cloud Sync Active
+                            Active List Ready
                         </p>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Header Action Buttons -->
                 <div class="flex items-center space-x-2">
-                    <button onclick="shareCurrentList()" class="bg-white/20 hover:bg-white/30 active:scale-95 transition px-3 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                    <button type="button" onclick="shareCurrentList()" class="bg-white/20 hover:bg-white/30 active:scale-95 transition px-3 py-2 rounded-xl text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-share-nodes text-sm"></i>
                         <span>Share</span>
                     </button>
-                    <button onclick="toggleListModal(true)" class="bg-white/20 hover:bg-white/30 active:scale-95 transition p-2.5 rounded-xl text-white text-sm font-bold shadow-sm">
-                        <i class="fa-solid fa-list-ul"></i>
+                    <button type="button" onclick="toggleListModal(true)" class="bg-white/20 hover:bg-white/30 active:scale-95 transition p-2.5 rounded-xl text-white text-sm font-bold shadow-sm">
+                        <i class="fa-solid fa-list-ul text-base"></i>
                     </button>
                 </div>
             </div>
@@ -133,7 +122,7 @@
                     <i class="fa-solid fa-basket-shopping text-2xl"></i>
                 </div>
                 <h3 class="font-bold text-slate-700 text-base">Your shopping list is empty</h3>
-                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below to share them with family in real time!</p>
+                <p class="text-slate-400 text-xs mt-1 max-w-xs">Add items below to get started!</p>
             </div>
         </main>
 
@@ -144,24 +133,4 @@
                     <div class="relative flex-1">
                         <input type="text" id="itemNameInput" placeholder="Add item (e.g. Milk, Bread)..." 
                                required autocomplete="off"
-                               class="w-full bg-slate-100 text-slate-900 text-sm rounded-xl pl-3.5 pr-8 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-200">
-                        <button type="button" onclick="clearInput()" id="clearInputBtn" class="hidden absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <div class="w-16">
-                        <input type="number" id="itemQtyInput" placeholder="Qty" min="1" value="1"
-                               class="w-full bg-slate-100 text-slate-900 text-sm font-semibold text-center rounded-xl py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-slate-200">
-                    </div>
-
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-3 px-5 rounded-xl shadow-md transition flex items-center justify-center gap-1.5 flex-shrink-0">
-                        <i class="fa-solid fa-plus"></i>
-                        <span class="text-xs">Add</span>
-                    </button>
-                </div>
-
-                <!-- Category Pills Bar -->
-                <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
-                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider flex-shrink-0">Category:</span>
-                    <div id="categoryP
+                               class="w-full bg-slate-100 text-slate-900 text-sm rounded-xl pl-3.5 pr-8 py-3 focus:outline-none focus
