@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FamilyCart - Smart Collaborative Grocery List</title>
+    <title>FamilyCart - Smart Grocery List</title>
 
     <!-- Web App Capability Tags -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -20,6 +20,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase Compat SDKs (Prevents Module/CORS Blocking) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
         body {
@@ -269,26 +273,26 @@
         <span id="toastMsg">Notification</span>
     </div>
 
-    <!-- FIREBASE & APP SCRIPT -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+    <!-- STANDARD SCRIPT -->
+    <script>
         // ==========================================
         // PASTE YOUR FIREBASE CONFIG HERE:
         // ==========================================
         const firebaseConfig = {
-            apiKey: ""AIzaSyDTqS42XgklCS-xmL8PBUfdtTsLDCXNK2g"",
-            authDomain: "familycart-5186a.firebaseapp.com",
-            projectId: "familycart-5186a",
-            storageBucket: "familycart-5186a.firebasestorage.app",
-            messagingSenderId: "1003257813967",
-            appId: "1:1003257813967:web:7f2965a40ea2f93db610ba",
-            measurementId: "G-V8MK5WW3Z9"
+            apiKey: "AIzaSyDTqS42XgklCS-xmL8PBUfdtTsLDCXNK2g",
+             authDomain: "familycart-5186a.firebaseapp.com",
+             projectId: "familycart-5186a",
+             storageBucket: "familycart-5186a.firebasestorage.app",
+             messagingSenderId: "1003257813967",
+             appId: "1:1003257813967:web:7f2965a40ea2f93db610ba",
+             measurementId: "G-V8MK5WW3Z9"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Initialize Firebase using Global SDK
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
 
         const CATEGORIES = [
             { id: 'Meats', label: 'Meats', icon: 'fa-drumstick-bite', color: 'bg-rose-100 text-rose-700 border-rose-200' },
@@ -373,10 +377,10 @@
 
             if (unsubscribeSnapshot) unsubscribeSnapshot();
 
-            const docRef = doc(db, "shopping_lists", listId);
+            const docRef = db.collection("shopping_lists").doc(listId);
             
-            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
-                if (docSnap.exists()) {
+            unsubscribeSnapshot = docRef.onSnapshot((docSnap) => {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     activeListName = data.name || "Family Groceries";
                     items = data.items || [];
@@ -396,17 +400,13 @@
             });
         }
 
-        async function saveListToCloud() {
-            try {
-                const docRef = doc(db, "shopping_lists", activeListId);
-                await setDoc(docRef, {
-                    name: activeListName,
-                    items: items,
-                    updatedAt: Date.now()
-                });
-            } catch (err) {
-                console.error("Error saving to cloud:", err);
-            }
+        function saveListToCloud() {
+            const docRef = db.collection("shopping_lists").doc(activeListId);
+            docRef.set({
+                name: activeListName,
+                items: items,
+                updatedAt: Date.now()
+            }).catch(err => console.error("Error saving to cloud:", err));
         }
 
         function renderCategoryPills() {
@@ -565,7 +565,7 @@
             }
         }
 
-        window.renderItemCard = function(item) {
+        function renderItemCard(item) {
             const cat = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[9];
             return `
                 <div class="item-enter bg-white p-3.5 rounded-2xl border ${item.done ? 'border-slate-200 bg-slate-50/70' : 'border-slate-200 shadow-sm'} flex items-center justify-between gap-3">
