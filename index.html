@@ -68,7 +68,7 @@
 </head>
 <body class="bg-slate-100 text-slate-850 flex flex-col min-h-screen">
 
-    <!-- APP CONTAINER (Full width on mobile portrait) -->
+    <!-- APP CONTAINER -->
     <div id="app" class="flex-1 flex flex-col w-full max-w-lg mx-auto bg-white min-h-screen shadow-xl relative pb-32">
 
         <!-- HEADER BANNER -->
@@ -82,7 +82,7 @@
                         <h1 class="font-extrabold text-xl leading-tight tracking-tight">FamilyCart</h1>
                         <p id="connectionStatus" class="text-xs text-emerald-100 flex items-center gap-1.5 mt-0.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                            Ready (Offline Mode)
+                            Live Sync Active
                         </p>
                     </div>
                 </div>
@@ -151,7 +151,7 @@
             </div>
         </main>
 
-        <!-- ADD ITEM FLOATING BAR (Sticky Bottom) -->
+        <!-- ADD ITEM FLOATING BAR -->
         <div class="fixed bottom-0 left-0 right-0 w-full max-w-lg mx-auto bg-white border-t border-slate-200 p-3.5 shadow-2xl z-30">
             <form id="addItemForm" onsubmit="handleAddItem(event)" class="flex flex-col space-y-2.5">
                 <div class="flex items-center space-x-2">
@@ -239,6 +239,7 @@
             </div>
 
             <div class="p-4 space-y-4 overflow-y-auto">
+                <!-- Create New List -->
                 <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
                     <label class="block text-xs font-bold text-slate-600 uppercase">Create New List</label>
                     <div class="flex space-x-2">
@@ -247,8 +248,18 @@
                     </div>
                 </div>
 
+                <!-- Join Existing List with Code -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                    <label class="block text-xs font-bold text-slate-600 uppercase">Join Family List with Code</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="joinListCodeInput" placeholder="Enter list code..." class="flex-1 bg-white text-xs p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <button onclick="joinExistingList()" class="bg-slate-800 text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-slate-900 active:scale-95 transition">Join</button>
+                    </div>
+                </div>
+
+                <!-- Saved Lists -->
                 <div>
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Saved Lists</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Saved / Recent Lists</h3>
                     <div id="recentListsContainer" class="space-y-2 max-h-48 overflow-y-auto">
                         <!-- Rendered Lists -->
                     </div>
@@ -264,8 +275,8 @@
                 <i class="fa-solid fa-users"></i>
             </div>
             <div>
-                <h3 class="font-bold text-slate-800 text-lg">Share List</h3>
-                <p class="text-xs text-slate-500 mt-1">Copy your list code or link to share with family members.</p>
+                <h3 class="font-bold text-slate-800 text-lg">Invite Family Members</h3>
+                <p class="text-xs text-slate-500 mt-1">Share this code or link with family so they can join your list!</p>
             </div>
 
             <div class="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex flex-col items-center justify-center">
@@ -294,7 +305,7 @@
         <span id="toastMsg">Notification</span>
     </div>
 
-    <!-- APPLICATION SCRIPT (Offline/Local Ready) -->
+    <!-- APPLICATION SCRIPT -->
     <script>
         const CATEGORIES = [
             { id: 'Meats', label: 'Meats', icon: 'fa-drumstick-bite', color: 'bg-rose-100 text-rose-700 border-rose-200' },
@@ -347,7 +358,6 @@
                 }
             });
 
-            // Listen for cross-tab updates (simulating live family sync on same device)
             window.addEventListener('storage', (e) => {
                 if (e.key === 'family_cart_lists') {
                     loadListFromStorage();
@@ -454,7 +464,7 @@
             if (!name) return;
 
             const newItem = {
-                id: 'item_' + Date.now() + Math.random().toString(36.2),
+                id: 'item_' + Date.now() + Math.random().toString(36).substring(2, 6),
                 name: name,
                 qty: qty,
                 category: selectedCategory,
@@ -516,7 +526,7 @@
             const activeItems = items.filter(i => !i.done);
             const trolleyItems = items.filter(i => i.done);
 
-            document.getElementById('itemCountBadge5') || (document.getElementById('itemCountBadge').innerText = `${activeItems.length} active`);
+            document.getElementById('itemCountBadge').innerText = `${activeItems.length} active`;
             document.getElementById('trolleyCount').innerText = trolleyItems.length;
 
             if (items.length === 0) {
@@ -531,7 +541,6 @@
             emptyState.classList.add('hidden');
             emptyState.classList.remove('flex');
 
-            // Render Active Items
             if (activeItems.length === 0) {
                 activeContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">All active items checked off! 🎉</p>`;
             } else if (isGroupedByCategory) {
@@ -557,7 +566,6 @@
                 activeContainer.innerHTML = activeItems.map(item => renderItemCard(item)).join('');
             }
 
-            // Render Trolley Items
             if (trolleyItems.length > 0) {
                 trolleySection.classList.remove('hidden');
                 trolleyContainer.innerHTML = trolleyItems.map(item => renderItemCard(item)).join('');
@@ -608,7 +616,7 @@
                 <div onclick="switchToList('${id}')" class="p-3 rounded-xl border ${id === activeListId ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'} flex items-center justify-between cursor-pointer transition">
                     <div>
                         <p class="font-bold text-sm">${list.name}</p>
-                        <p class="text-[10px] text-slate-400">${list.items.length} items</p>
+                        <p class="text-[10px] text-slate-400">${list.items ? list.items.length : 0} items</p>
                     </div>
                     ${id === activeListId ? '<span class="text-xs font-bold text-emerald-600">Active</span>' : ''}
                 </div>
@@ -641,6 +649,22 @@
             switchToList(newId);
         };
 
+        window.joinExistingList = function() {
+            const input = document.getElementById('joinListCodeInput');
+            const code = input.value.trim();
+            if (!code) return;
+
+            const db = getListsDB();
+            if (!db[code]) {
+                db[code] = { name: 'Joined Family List', items: [] };
+                saveListsDB(db);
+            }
+
+            input.value = '';
+            switchToList(code);
+            showToast('Joined list successfully!');
+        };
+
         window.shareCurrentList = function() {
             document.getElementById('shareListCodeDisplay').innerText = activeListId;
             document.getElementById('shareModal').classList.remove('hidden');
@@ -652,13 +676,13 @@
 
         window.copyShareCode = function() {
             navigator.clipboard.writeText(activeListId);
-            showToast('List code copied to clipboard!');
+            showToast('List code copied!');
         };
 
         window.copyShareLink = function() {
             const link = window.location.origin + window.location.pathname + '?list=' + encodeURIComponent(activeListId);
             navigator.clipboard.writeText(link);
-            showToast('List link copied to clipboard!');
+            showToast('List link copied!');
         };
 
         // Edit Modal handlers
