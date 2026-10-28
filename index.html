@@ -291,12 +291,11 @@
         <span id="toastMsg">Notification</span>
     </div>
 
-    <!-- FIREBASE MODULES & LIVE SYNC SCRIPT -->
+    <!-- FIREBASE & APP SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase configuration (uses default demo/test bucket if not configured)
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyA_DemoKey_ShoppingListApp_2026",
             authDomain: "family-cart-sync.firebaseapp.com",
@@ -344,4 +343,143 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const listParam = urlParams.get
+            const listParam = urlParams.get('list');
+            if (listParam) {
+                activeListId = listParam;
+            } else {
+                activeListId = localStorage.getItem('family_cart_last_id') || 'family-groceries-default';
+            }
+
+            renderCategoryPills();
+            populateEditCategories();
+            subscribeToCloudList(activeListId);
+
+            const itemNameInput = document.getElementById('itemNameInput');
+            const clearInputBtn = document.getElementById('clearInputBtn');
+
+            itemNameInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase().trim();
+                clearInputBtn.classList.toggle('hidden', val === '');
+                for (const [cat, words] of Object.entries(KEYWORD_MAP)) {
+                    if (words.some(w => val.includes(w))) {
+                        selectCategory(cat);
+                        break;
+                    }
+                }
+            });
+        });
+
+        function getLocalSavedLists() {
+            try {
+                const data = localStorage.getItem('family_cart_recent_lists');
+                return data ? JSON.parse(data) : { 'family-groceries-default': 'Family Groceries' };
+            } catch (e) {
+                return { 'family-groceries-default': 'Family Groceries' };
+            }
+        }
+
+        function saveLocalListRecord(id, name) {
+            const lists = getLocalSavedLists();
+            lists[id] = name;
+            localStorage.setItem('family_cart_recent_lists', JSON.stringify(lists));
+            localStorage.setItem('family_cart_last_id', id);
+        }
+
+        function subscribeToCloudList(listId) {
+            activeListId = listId;
+            localStorage.setItem('family_cart_last_id', listId);
+
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+            const docRef = doc(db, "shopping_lists", listId);
+            
+            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    activeListName = data.name || "Family Groceries";
+                    items = data.items || [];
+                } else {
+                    activeListName = "Family Groceries";
+                    items = [
+                        { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
+                        { id: '2', name: 'Whole Wheat Bread', qty: 1, category: 'Bakery', done: false }
+                    ];
+                    saveListToCloud();
+                }
+                saveLocalListRecord(activeListId, activeListName);
+                document.getElementById('currentListName').innerText = activeListName;
+                renderItems();
+            }, (err) => {
+                console.warn("Cloud sync fallback:", err);
+            });
+        }
+
+        async function saveListToCloud() {
+            try {
+                const docRef = doc(db, "shopping_lists", activeListId);
+                await setDoc(docRef, {
+                    name: activeListName,
+                    items: items,
+                    updatedAt: Date.now()
+                });
+            } catch (err) {
+                console.error("Error saving to cloud:", err);
+            }
+        }
+
+        function renderCategoryPills() {
+            const container = document.getElementById('categoryPills');
+            container.innerHTML = CATEGORIES.map(cat => `
+                <button type="button" onclick="selectCategory('${cat.id}')" 
+                    id="pill-${cat.id}"
+                    class="category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
+                        selectedCategory === cat.id 
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                    }">
+                    <i class="fa-solid ${cat.icon} text-xs"></i>
+                    <span>${cat.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function populateEditCategories() {
+            const select = document.getElementById('editItemCategorySelect');
+            select.innerHTML = CATEGORIES.map(cat => `
+                <option value="${cat.id}">${cat.label}</option>
+            `).join('');
+        }
+
+        window.selectCategory = function(catId) {
+            selectedCategory = catId;
+            document.querySelectorAll('.category-pill').forEach(btn => {
+                const isSelected = btn.id === `pill-${catId}`;
+                btn.className = `category-pill flex items-center space-x-1 text-xs font-bold px-3 py-1.5 rounded-full border transition-all flex-shrink-0 ${
+                    isSelected 
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' 
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`;
+            });
+        };
+
+        window.handleAddItem = function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('itemNameInput');
+            const qtyInput = document.getElementById('itemQtyInput');
+            
+            const name = nameInput.value.trim();
+            const qty = parseInt(qtyInput.value) || 1;
+
+            if (!name) return;
+
+            const newItem = {
+                id: 'item_' + Date.now() + Math.random().toString(36).substring(2, 6),
+                name: name,
+                qty: qty,
+                category: selectedCategory,
+                done: false
+            };
+
+            items.unshift(newItem);
+            saveListToCloud();
+            render
