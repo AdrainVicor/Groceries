@@ -11,5 +11,8 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "GroceryList",
+  "description": "Share your grocery list with friends and family.",
+  "lang": "en"
 }
