@@ -1,0 +1,14 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "FamilyCart",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "FamilyCart",
+  "start_url": "/Groceries/",
+  "theme_color": "#4dcd31",
+  "id": "ShoppingCart",
+  "description": "Create a grocery list that you can share with friends and family.",
+  "lang": "en"
+}
