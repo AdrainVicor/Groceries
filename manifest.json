@@ -14,5 +14,6 @@
   ],
   "id": "GroceryList",
   "description": "Share your grocery list with friends and family.",
-  "lang": "en"
+  "lang": "en",
+  "orientation": "portrait"
 }
