@@ -405,6 +405,29 @@
             });
         });
 
+        function playAlertSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5 note
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {
+                console.warn("Audio Context blocked or not supported", e);
+            }
+        }
+        
         function getLocalSavedLists() {
             try {
                 const data = localStorage.getItem('family_cart_recent_lists');
@@ -451,12 +474,23 @@
 
             const docRef = db.collection("shopping_lists").doc(listId);
             
+            let previousItemCount = null;
+
             unsubscribeSnapshot = docRef.onSnapshot((docSnap) => {
                 if (docSnap.exists) {
                     const data = docSnap.data();
+                    const newItems = data.items || [];
+                    
+                    // Check if someone added an item while you are watching
+                    if (previousItemCount !== null && newItems.length > previousItemCount) {
+                        playAlertSound();
+                        showToast("New item added to list!");
+                    }
+                    previousItemCount = newItems.length;
+
                     activeListName = data.name || "Family Groceries";
-                    items = data.items || [];
-                } else {
+                    items = newItems;
+                    } else {
                     activeListName = "My Shopping List";
                     items = [
                         { id: '1', name: 'Milk', qty: 2, category: 'Dairy', done: false },
