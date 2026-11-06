@@ -407,13 +407,39 @@
 
         function playAlertSound() {
             try {
-                // Reliable short notification beep using a data URI
-                const audio = new Audio('data:audio/wav;base64,UklGRl9vT19WQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU9vT19JAP//f4CAgIAAgACAgICA');
-                audio.volume = 1.0;
-                audio.play().catch(e => console.log("Audio playback blocked by browser policy:", e));
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const audioCtx = new AudioContext();
+
+                // Mobile WebViews suspend audio until explicitly resumed
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        triggerBeep(audioCtx);
+                    });
+                } else {
+                    triggerBeep(audioCtx);
+                }
             } catch (e) {
-                console.warn("Audio error:", e);
+                console.log("Audio playback error:", e);
             }
+        }
+
+        function triggerBeep(audioCtx) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch chime (A5)
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
         }
         
         function getLocalSavedLists() {
