@@ -405,23 +405,24 @@
             });
         });
 
+        // Pre-load the audio element so it's ready to fire instantly
+        const alertAudio = new Audio('data:audio/wav;base64,UklGRl9vT19WQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU9vT19JAP//f4CAgIAAgACAgICA');
+        alertAudio.volume = 1.0;
+
+        // Unlock audio on the very first tap anywhere in the app
+        document.addEventListener('click', () => {
+            alertAudio.play().then(() => {
+                alertAudio.pause();
+                alertAudio.currentTime = 0;
+            }).catch(() => {});
+        }, { once: true });
+
         function playAlertSound() {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                
-                const audioCtx = new AudioContext();
-
-                // Mobile WebViews suspend audio until explicitly resumed
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(() => {
-                        triggerBeep(audioCtx);
-                    });
-                } else {
-                    triggerBeep(audioCtx);
-                }
+                alertAudio.currentTime = 0;
+                alertAudio.play().catch(e => console.log("Audio play blocked:", e));
             } catch (e) {
-                console.log("Audio playback error:", e);
+                console.warn("Audio error:", e);
             }
         }
 
